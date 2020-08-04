@@ -1,4 +1,5 @@
-﻿using KLog.Writer;
+﻿using KLog.Interface;
+using KLog.Writer;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,10 +9,7 @@ using Timer = System.Timers.Timer;
 
 namespace KLog
 {
-    public interface ILogWriter
-    {
-        void Write(string s);
-    }
+
 
     public class Logger
     {
@@ -25,18 +23,15 @@ namespace KLog
 
         private Level minLevel = Level.Debug;
         private Mutex mutex = new Mutex();
-        private Timer timer = new Timer();
+        private Timer timer;
         private bool commitLogEnabled;
-        private ConcurrentStack<string> commitLog = 
-            new ConcurrentStack<string>();
+        private ConcurrentStack<string> commitLog = new ConcurrentStack<string>();
         private List<ILogWriter> logWriters = new List<ILogWriter>();
 
         public Logger()
         {
             this.AddWriter(new ConsoleWriter());
-            this.timer.Interval = 20000;
-            this.timer.Elapsed += this.IntervalledWrite;
-            this.timer.Enabled = true;
+            
         }
 
         public void SetMinLevel(Level lvl)
@@ -71,6 +66,17 @@ namespace KLog
         public void UseCommitLog(bool enabled)
         {
             this.commitLogEnabled = enabled;
+            if (enabled)
+            {
+                this.timer = new Timer();
+                this.timer.Interval = 20000;
+                this.timer.Elapsed += this.IntervalledWrite;
+                this.timer.Enabled = true;
+            }
+            else
+            {
+                this.timer = null;
+            }
         }
 
         public bool IsCommitLogEnabled()
@@ -127,6 +133,11 @@ namespace KLog
         public void Error(Exception e)
         {
             this.WriteLogMessage(Level.Error, e.Message);
+        }
+
+        public void Metric(string ctx, int ms)
+        {
+
         }
 
         private void WriteLogMessage(Level l, string msg)

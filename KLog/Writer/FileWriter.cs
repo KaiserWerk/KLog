@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using KLog.Interface;
+using System.IO;
 
 namespace KLog.Writer
 {
