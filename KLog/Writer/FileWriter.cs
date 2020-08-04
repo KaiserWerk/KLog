@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace KLog.Writer
 {
-    public class FileWriter : LogWriter
+    public class FileWriter : ILogWriter
     {
         private string file;
 

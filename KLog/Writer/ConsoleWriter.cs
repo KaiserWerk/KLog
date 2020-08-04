@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace KLog.Writer
 {
-    public class ConsoleWriter : LogWriter
+    public class ConsoleWriter : ILogWriter
     {
         public void Write(string s)
         {

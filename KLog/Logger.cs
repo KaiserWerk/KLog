@@ -1,10 +1,14 @@
-﻿using System;
+﻿using KLog.Writer;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using KLog.Writer;
+using System.Threading;
+using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace KLog
 {
-    public interface LogWriter
+    public interface ILogWriter
     {
         void Write(string s);
     }
@@ -19,19 +23,67 @@ namespace KLog
             Error
         }
 
+        private Level minLevel = Level.Debug;
+        private Mutex mutex = new Mutex();
+        private Timer timer = new Timer();
+        private bool commitLogEnabled;
+        private ConcurrentStack<string> commitLog = 
+            new ConcurrentStack<string>();
+        private List<ILogWriter> logWriters = new List<ILogWriter>();
+
         public Logger()
         {
-            this.SetWriter(new ConsoleWriter());
+            this.AddWriter(new ConsoleWriter());
+            this.timer.Interval = 20000;
+            this.timer.Elapsed += this.IntervalledWrite;
+            this.timer.Enabled = true;
         }
 
-        private List<LogWriter> logWriters = new List<LogWriter>();
+        public void SetMinLevel(Level lvl)
+        {
+            this.minLevel = lvl;
+        }
 
-        public void AddWriter(LogWriter w)
+        private void IntervalledWrite(object sender, ElapsedEventArgs e)
+        {
+            if (!this.commitLogEnabled)
+                return;
+            
+            // oder alles zu einem String zusammenführen
+            // und nur einen Schreibvorgang durchführen
+            this.mutex.WaitOne();
+            foreach (string item in this.commitLog)
+            {
+                if (this.logWriters.Count > 0)
+                {
+                    foreach (var writer in this.logWriters)
+                    {
+                        writer.Write(item);
+                    }
+                }
+            }
+            this.commitLog.Clear();
+            this.mutex.ReleaseMutex();
+            System.Diagnostics.Debug.WriteLine("write done");
+            
+        }
+
+        public void UseCommitLog(bool enabled)
+        {
+            this.commitLogEnabled = enabled;
+        }
+
+        public bool IsCommitLogEnabled()
+        {
+            return this.commitLogEnabled;
+        }
+
+        public void AddWriter(ILogWriter w)
         {
             this.logWriters.Add(w);
         }
 
-        public void SetWriter(LogWriter w)
+        public void SetWriter(ILogWriter w)
         {
             this.logWriters.Clear();
             this.logWriters.Add(w);
@@ -39,55 +91,67 @@ namespace KLog
 
         public void Debug(string s)
         {
-            this.writeLogMessage(Level.Debug, s);
+            this.WriteLogMessage(Level.Debug, s);
         }
 
         public void Debug(Exception e)
         {
-            this.writeLogMessage(Level.Debug, e.Message);
+            this.WriteLogMessage(Level.Debug, e.Message);
         }
 
         public void Info(string s)
         {
-            this.writeLogMessage(Level.Info, s);
+            this.WriteLogMessage(Level.Info, s);
         }
 
         public void Info(Exception e)
         {
-            this.writeLogMessage(Level.Info, e.Message);
+            this.WriteLogMessage(Level.Info, e.Message);
         }
 
         public void Warn(string s)
         {
-            this.writeLogMessage(Level.Warn, s);
+            this.WriteLogMessage(Level.Warn, s);
         }
 
         public void Warn(Exception e)
         {
-            this.writeLogMessage(Level.Warn, e.Message);
+            this.WriteLogMessage(Level.Warn, e.Message);
         }
 
         public void Error(string s)
         {
-            this.writeLogMessage(Level.Error, s);
+            this.WriteLogMessage(Level.Error, s);
         }
 
         public void Error(Exception e)
         {
-            this.writeLogMessage(Level.Error, e.Message);
+            this.WriteLogMessage(Level.Error, e.Message);
         }
 
-        private void writeLogMessage(Level l, string msg)
+        private void WriteLogMessage(Level l, string msg)
         {
             var now = DateTime.Now;
+            // Format änderbar/konfigurierbar machen
             string line = $"date=\"{now.ToLongDateString()}\" time=\"{now.ToLongTimeString()}\" " +
                           $"level=\"{l.ToString()}\" message=\"{msg}\"";
 
-            if (this.logWriters.Count > 0)
+            if (l >= this.minLevel)
             {
-                foreach (var writer in this.logWriters)
+                if (!this.commitLogEnabled)
                 {
-                    writer.Write(line);
+
+                    if (this.logWriters.Count > 0)
+                    {
+                        foreach (var writer in this.logWriters)
+                        {
+                            writer.Write(line);
+                        }
+                    }
+                }
+                else
+                {
+                    this.commitLog.Push(line);
                 }
             }
         }
