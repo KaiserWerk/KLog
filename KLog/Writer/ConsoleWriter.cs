@@ -1,6 +1,6 @@
-﻿using System;
+﻿using KLog.Interface;
+using System;
 using System.Diagnostics;
-using KLog.Interface;
 
 namespace KLog.Writer
 {

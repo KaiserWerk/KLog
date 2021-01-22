@@ -9,18 +9,8 @@ using Timer = System.Timers.Timer;
 
 namespace KLog
 {
-
-
     public class Logger
     {
-        public enum Level
-        {
-            Debug,
-            Info,
-            Warn,
-            Error
-        }
-
         private Level minLevel = Level.Debug;
         private Mutex mutex = new Mutex();
         private Timer timer;
@@ -29,9 +19,12 @@ namespace KLog
         private List<ILogWriter> logWriters = new List<ILogWriter>();
 
         public Logger()
+        { }
+
+        public Logger(KLogOptions options)
         {
-            this.AddWriter(new ConsoleWriter());
-            
+            this.logWriters = options.Writer ?? new List<ILogWriter>();
+            this.minLevel = options.MinLevel;
         }
 
         public void SetMinLevel(Level lvl)
@@ -44,8 +37,6 @@ namespace KLog
             if (!this.commitLogEnabled)
                 return;
             
-            // oder alles zu einem String zusammenführen
-            // und nur einen Schreibvorgang durchführen
             this.mutex.WaitOne();
             foreach (string item in this.commitLog)
             {
@@ -59,8 +50,6 @@ namespace KLog
             }
             this.commitLog.Clear();
             this.mutex.ReleaseMutex();
-            System.Diagnostics.Debug.WriteLine("write done");
-            
         }
 
         public void UseCommitLog(bool enabled)
@@ -143,7 +132,7 @@ namespace KLog
         private void WriteLogMessage(Level l, string msg)
         {
             var now = DateTime.Now;
-            // Format änderbar/konfigurierbar machen
+            
             string line = $"date=\"{now.ToLongDateString()}\" time=\"{now.ToLongTimeString()}\" " +
                           $"level=\"{l.ToString()}\" message=\"{msg}\"";
 
