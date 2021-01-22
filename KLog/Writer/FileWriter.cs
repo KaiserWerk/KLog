@@ -10,6 +10,9 @@ namespace KLog.Writer
         public FileWriter(string filename)
         {
             this.file = filename;
+            string path = Path.GetDirectoryName(this.file);
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
         }
 
         public void Write(string s)
