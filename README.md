@@ -26,9 +26,9 @@ You can easily add any writer, e.g. a `FileWriter`:
 
 ## Custom Writers
 
-Your custom writers must implement the `LogWriter` interface, which looks like this:
+Your custom writers must implement the `ILogWriter` interface, which looks like this:
 
-    public interface LogWriter
+    public interface ILogWriter
     {
         void Write(string s);
     }
