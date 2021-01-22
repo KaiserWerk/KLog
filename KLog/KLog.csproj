@@ -8,6 +8,8 @@
     <Company>KaiserWerk</Company>
     <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <FileVersion>1.0.2.0</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>A basic logging package with an easy-to-use API.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
