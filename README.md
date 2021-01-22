@@ -3,7 +3,7 @@
 KLog is a very basic logging library which allows leveled logging (debug, info, warn, error) and supports multiple and custom writers.
 By default, a new instance of the logger has a ``ConsoleWriter``. A FileWriter can be easily added.
 
-The is an interface available called `LogWriter` which allows you to implement your own writer
+The is an interface available called `ILogWriter` which allows you to implement your own writer
 
 ## Basic Example
 
