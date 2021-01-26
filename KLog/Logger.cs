@@ -1,5 +1,4 @@
 ﻿using KLog.Interface;
-using KLog.Writer;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,10 +26,7 @@ namespace KLog
             this.minLevel = options.MinLevel;
         }
 
-        public void SetMinLevel(Level lvl)
-        {
-            this.minLevel = lvl;
-        }
+        public void SetMinLevel(Level lvl) => this.minLevel = lvl;
 
         private void IntervalledWrite(object sender, ElapsedEventArgs e)
         {
@@ -68,15 +64,9 @@ namespace KLog
             }
         }
 
-        public bool IsCommitLogEnabled()
-        {
-            return this.commitLogEnabled;
-        }
+        public bool IsCommitLogEnabled() => this.commitLogEnabled;
 
-        public void AddWriter(ILogWriter w)
-        {
-            this.logWriters.Add(w);
-        }
+        public void AddWriter(ILogWriter w) => this.logWriters.Add(w);
 
         public void SetWriter(ILogWriter w)
         {
@@ -84,46 +74,22 @@ namespace KLog
             this.logWriters.Add(w);
         }
 
-        public void Debug(string s)
-        {
-            this.WriteLogMessage(Level.Debug, s);
-        }
+        public void Debug(string s) => this.WriteLogMessage(Level.Debug, s);
 
-        public void Debug(Exception e)
-        {
-            this.WriteLogMessage(Level.Debug, e.Message);
-        }
+        public void Debug(Exception e) => this.WriteLogMessage(Level.Debug, e.Message);
 
-        public void Info(string s)
-        {
-            this.WriteLogMessage(Level.Info, s);
-        }
+        public void Info(string s) => this.WriteLogMessage(Level.Info, s);
 
-        public void Info(Exception e)
-        {
-            this.WriteLogMessage(Level.Info, e.Message);
-        }
+        public void Info(Exception e) => this.WriteLogMessage(Level.Info, e.Message);
 
-        public void Warn(string s)
-        {
-            this.WriteLogMessage(Level.Warn, s);
-        }
+        public void Warn(string s) => this.WriteLogMessage(Level.Warn, s);
 
-        public void Warn(Exception e)
-        {
-            this.WriteLogMessage(Level.Warn, e.Message);
-        }
+        public void Warn(Exception e) => this.WriteLogMessage(Level.Warn, e.Message);
 
-        public void Error(string s)
-        {
-            this.WriteLogMessage(Level.Error, s);
-        }
+        public void Error(string s) => this.WriteLogMessage(Level.Error, s);
 
-        public void Error(Exception e)
-        {
-            this.WriteLogMessage(Level.Error, e.Message);
-        }
-
+        public void Error(Exception e) => this.WriteLogMessage(Level.Error, e.Message);
+        // @TODO implement
         public void Metric(string ctx, int ms)
         {
 
